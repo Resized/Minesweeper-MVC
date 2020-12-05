@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-def colorpicker(bombs_around):
+def colorpicker(bombs_around: int):
     """ Set correct cell text color by number of bombs around """
     text_color = ""
     if bombs_around == 1:

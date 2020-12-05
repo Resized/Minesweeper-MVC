@@ -4,8 +4,10 @@ from model import Model
 from view import View
 
 if __name__ == '__main__':
+
     # Initialisation of the data ###################################################
     model = Model()
+
     view = View()
     controller = Controller(model, view)
     view.set_controller(controller)

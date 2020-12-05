@@ -1,7 +1,8 @@
 from itertools import product
 import random
 import time
-
+from constants import DEFAULT_UNDO_TRIES
+from memento import Originator, Caretaker
 from utils import Difficulty
 
 
@@ -16,15 +17,35 @@ class Model:
         self.grid = Grid(self.width, self.height, self.bombs)
         self.squares_revealed = 0
         self.init_time = time.time()
+        self.originator = Originator()
+        self.caretaker = Caretaker(self.originator)
+        self.state = dict()
+        self.memento_instances = 0
+        self.undos_remaining = DEFAULT_UNDO_TRIES
 
-    def set_memento(self, memento):
-        previous_state = pickle.loads(memento)
-        print(previous_state)
-        vars(self).clear()
-        vars(self).update(previous_state)
+    def save_state(self):
+        self.state = {'squares_revealed': self.squares_revealed,
+                      'grid_state': self.grid.get_state(),
+                      'bombs_left': self.bombs_left}
+        self.originator.set(self.state)
+        self.caretaker.backup()
+        self.memento_instances += 1
+        print(f'mementos: {self.memento_instances}')
 
-    def create_memento(self):
-        return pickle.dumps(vars(self))
+    def undo_state(self) -> bool:
+        if self.undos_remaining == 0:
+            return False
+        try:
+            self.state = self.caretaker.undo()
+        except IndexError:
+            print('No memento to undo')
+            return False
+        self.squares_revealed = self.state['squares_revealed']
+        self.bombs_left = self.state['bombs_left']
+        self.grid.set_state(self.state['grid_state'])
+        self.memento_instances -= 1
+        self.undos_remaining -= 1
+        return True
 
     def set_parameters(self, difficulty: Difficulty, *argv):
         """ set parameters height, width, bombs """
@@ -73,6 +94,16 @@ class Model:
         self.difficulty = difficulty
         return True
 
+    def new_game(self):
+        self.caretaker.clear()
+        self.memento_instances = 0
+        self.grid.reset()
+        self.grid.add_bombs()
+        self.set_squares_revealed(0)
+        self.set_bombs_left(self.bombs)
+        self.undos_remaining = DEFAULT_UNDO_TRIES
+        self.set_init_time(time.time())
+
     def get_grid(self):
         return self.grid
 
@@ -116,7 +147,7 @@ class Model:
         self.grid = Grid(self.width, self.height, self.bombs)
 
     def is_square_revealed(self, i, j):
-        return self.grid.board[i][j].revealed
+        return self.grid.board[i][j].is_revealed
 
 
 class Grid:
@@ -134,8 +165,8 @@ class Grid:
     def reset(self):
         """ Reset all squares in grid to default values """
         for line in self.board:
-            for sq in line:
-                sq.reset()
+            for cell in line:
+                cell.reset()
 
     def add_bombs(self):
         """ Fill board squares with bombs """
@@ -160,6 +191,27 @@ class Grid:
                 lst.append((x, y))
         return lst
 
+    def get_state(self):
+        """ Returns a List[List[dict[str, bool]]] representing the current Grid state
+
+        :return: state -> List[List[dict[str, bool]]]
+        """
+        state = [[{'is_revealed': self.board[i][j].is_revealed, 'is_flagged': self.board[i][j].is_flagged} for j in
+                  range(self.width)]
+                 for i in range(self.height)]
+        return state
+
+    def set_state(self, state):
+        """
+        Set Grid's state by given state
+
+        :param state: List[List[dict[str, bool]]] representing the current Grid state
+        """
+        for i in range(self.height):
+            for j in range(self.width):
+                self.board[i][j].is_revealed = state[i][j]['is_revealed']
+                self.board[i][j].is_flagged = state[i][j]['is_flagged']
+
 
 class Cell:
     """ A square of the game """
@@ -167,15 +219,24 @@ class Cell:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.reset()
-
-    def reset(self):
         self.is_bomb = False
-        self.revealed = False
+        self.is_revealed = False
+        self.is_flagged = False
         self.bombs_around = 0
 
+    def reset(self):
+        """ Reset cell to default values """
+        self.is_bomb = False
+        self.is_revealed = False
+        self.bombs_around = 0
+        self.is_flagged = False
+
     def reveal(self):
-        self.revealed = True
+        """
+        Set cell logic to be revealed
+        :return: Tuple of is_bomb and bombs_around values
+        """
+        self.is_revealed = True
         return self.is_bomb, self.bombs_around
 
         #   -------->
