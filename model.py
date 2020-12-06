@@ -24,15 +24,20 @@ class Model:
         self.undos_remaining = DEFAULT_UNDO_TRIES
 
     def save_state(self):
+        """ Save current state as memento """
         self.state = {'squares_revealed': self.squares_revealed,
                       'grid_state': self.grid.get_state(),
                       'bombs_left': self.bombs_left}
         self.originator.set(self.state)
         self.caretaker.backup()
         self.memento_instances += 1
-        print(f'mementos: {self.memento_instances}')
 
     def undo_state(self) -> bool:
+        """
+        Undo state to previous one
+
+        :return: True/False whether undo was successful
+        """
         if self.undos_remaining == 0:
             return False
         try:
@@ -95,6 +100,7 @@ class Model:
         return True
 
     def new_game(self):
+        """ Resets model values and start a new game """
         self.caretaker.clear()
         self.memento_instances = 0
         self.grid.reset()
@@ -151,7 +157,7 @@ class Model:
 
 
 class Grid:
-    """ A game grid, containing Squares """
+    """ A game grid, containing Cell """
 
     def __init__(self, width: int, height: int, bombs: int):
         self.height = height
@@ -183,7 +189,13 @@ class Grid:
                     self.board[i2][j2].bombs_around += 1
 
     def neighbours(self, i, j):
-        """ Return the list of coordinates of the neighbours of the (i, j) cell """
+        """
+        Return the list of coordinates of the neighbours of the (i, j) cell
+
+        :param i: Height location of the cell
+        :param j: Width location of the cell
+        :return: List of neighbouring cells
+        """
         lst = []
         iterlist = [[i - 1, i, i + 1], [j - 1, j, j + 1]]
         for (x, y) in product(*iterlist):
@@ -192,7 +204,8 @@ class Grid:
         return lst
 
     def get_state(self):
-        """ Returns a List[List[dict[str, bool]]] representing the current Grid state
+        """
+        Returns a nested list representing the current Grid state
 
         :return: state -> List[List[dict[str, bool]]]
         """
@@ -214,7 +227,7 @@ class Grid:
 
 
 class Cell:
-    """ A square of the game """
+    """ Class representing a square of the game """
 
     def __init__(self, x, y):
         self.x = x

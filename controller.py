@@ -6,9 +6,6 @@ from view import View
 import utils
 
 
-# Event handlers ###############################################################
-
-
 class Controller:
 
     def __init__(self, model: Model, view: View):
