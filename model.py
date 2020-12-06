@@ -8,6 +8,11 @@ from utils import Difficulty
 
 class Model:
     def __init__(self, height=8, width=10, bombs=10):
+        """
+        :param height: Height of grid
+        :param width: Width of grid
+        :param bombs: Amount of bombs in grid
+        """
         self.difficulty = Difficulty.EASY
         self.height = height
         self.width = width
@@ -53,7 +58,13 @@ class Model:
         return True
 
     def set_parameters(self, difficulty: Difficulty, *argv):
-        """ set parameters height, width, bombs """
+        """
+        set parameters height, width, bombs
+
+        :param difficulty: Enum of Difficulty
+        :param argv: height, width, bombs to set values at
+        :return: True/False whether parameters were set successfully
+        """
 
         if len(argv) != 3 and len(argv) != 0:
             print("Warning : Invalid parameters")
@@ -135,7 +146,10 @@ class Model:
         self.squares_revealed = num_squares_revealed
 
     def set_bombs_left(self, num_bombs_left):
+        if num_bombs_left < 0:
+            return False
         self.bombs_left = num_bombs_left
+        return True
 
     def set_bombs(self, num_bombs):
         self.bombs = num_bombs

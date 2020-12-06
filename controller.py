@@ -50,13 +50,13 @@ class Controller:
         """
         if not self.model.is_square_revealed(i, j):
             if self.view.is_empty_image(i, j):
-                self.view.set_flag(i, j)
-                self.model.grid.board[i][j].is_flagged = True
-                self.model.set_bombs_left(self.model.get_bombs_left() - 1)
+                if self.model.set_bombs_left(self.model.get_bombs_left() - 1):
+                    self.view.set_flag(i, j)
+                    self.model.grid.board[i][j].is_flagged = True
             else:
-                self.view.set_disabled(i, j)
-                self.model.grid.board[i][j].is_flagged = False
-                self.model.set_bombs_left(self.model.get_bombs_left() + 1)
+                if self.model.set_bombs_left(self.model.get_bombs_left() + 1):
+                    self.view.set_disabled(i, j)
+                    self.model.grid.board[i][j].is_flagged = False
 
     def end_game(self, win: bool) -> None:
         """
