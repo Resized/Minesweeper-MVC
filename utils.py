@@ -1,4 +1,12 @@
+from dataclasses import dataclass
 from enum import Enum
+
+
+@dataclass
+class BoardState:
+    grid_state: list[list[dict[str, bool]]]
+    squares_revealed: int
+    bombs_left: int
 
 
 def colorpicker(bombs_around: int) -> str:

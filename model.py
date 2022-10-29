@@ -1,6 +1,7 @@
 import time
+
 from constants import DEFAULT_UNDO_TRIES
-from grid import Grid
+from grid import Grid, BoardState
 from memento import Originator, Caretaker
 from utils import Difficulty
 
@@ -12,6 +13,7 @@ class Model:
         :param width: Width of grid
         :param bombs: Amount of bombs in grid
         """
+        self.squares_revealed = 0
         self.difficulty = Difficulty.EASY
         self.height = height
         self.width = width
@@ -19,19 +21,16 @@ class Model:
         self.bombs_left = bombs
         self.set_parameters(self.difficulty, self.height, self.width, self.bombs)
         self.grid = Grid(self.width, self.height, self.bombs)
-        self.squares_revealed = 0
         self.init_time = time.time()
         self.originator = Originator()
         self.caretaker = Caretaker(self.originator)
-        self.state = dict()
+        self.state = BoardState(self.grid.get_grid_state(), 0, bombs)
         self.memento_instances = 0
         self.undos_remaining = DEFAULT_UNDO_TRIES
 
     def save_state(self) -> None:
         """ Save current state as memento """
-        self.state = {'squares_revealed': self.squares_revealed,
-                      'grid_state': self.grid.get_state(),
-                      'bombs_left': self.bombs_left}
+        self.state = self.grid.get_state()
         self.originator.set(self.state)
         self.caretaker.backup()
         self.memento_instances += 1
@@ -49,9 +48,7 @@ class Model:
         except IndexError:
             print('No memento to undo')
             return False
-        self.squares_revealed = self.state['squares_revealed']
-        self.bombs_left = self.state['bombs_left']
-        self.grid.set_state(self.state['grid_state'])
+        self.grid.set_state(self.state)
         self.memento_instances -= 1
         self.undos_remaining -= 1
         return True
@@ -123,9 +120,6 @@ class Model:
     def get_grid(self) -> Grid:
         return self.grid
 
-    def get_squares_revealed(self) -> int:
-        return self.squares_revealed
-
     def get_width(self) -> int:
         return self.grid.width
 
@@ -136,10 +130,13 @@ class Model:
         return self.bombs
 
     def get_bombs_left(self) -> int:
-        return self.bombs_left
+        return self.grid.get_bombs_left()
 
     def get_init_time(self) -> float:
         return self.init_time
+
+    def get_squares_revealed(self) -> int:
+        return self.grid.get_squares_revealed()
 
     def set_squares_revealed(self, num_squares_revealed: int) -> None:
         self.squares_revealed = num_squares_revealed
@@ -177,7 +174,7 @@ class Model:
     def is_square_revealed(self, i: int, j: int) -> bool:
         return self.grid.board[i][j].is_revealed
 
-    def get_state(self) -> dict[str, int | list]:
+    def get_state(self) -> BoardState:
         return self.state
 
     def get_undos_remaining(self) -> int:

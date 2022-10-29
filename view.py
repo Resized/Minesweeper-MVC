@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk, font, Button
 import tkinter.font as tkf
 import time
-from typing import List
 
 import utils
 
@@ -319,17 +318,17 @@ class View:
             for y in range(width):
                 self.set_unclicked(x, y)
 
-    def board_to_state(self, state: dict[str, int | list]) -> None:
+    def board_to_state(self, grid_state: utils.BoardState) -> None:
         """
         Sets the board to given state
 
-        :param state: State of board to set it to
+        :param grid_state: State of board to set it to
         """
         for i in range(self.controller.get_board_height()):
             for j in range(self.controller.get_board_width()):
-                if not state['grid_state'][i][j]['is_revealed']:
+                if not grid_state.grid_state[i][j]['is_revealed']:
                     self.set_unclicked(i, j)
-                if state['grid_state'][i][j]['is_flagged']:
+                if grid_state.grid_state[i][j]['is_flagged']:
                     self.set_flag(i, j)
                 else:
                     self.set_disabled(i, j)

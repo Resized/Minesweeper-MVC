@@ -35,7 +35,7 @@ class Controller:
                     text = str(bombs_around)
                     self.view.set_bomb_text(i, j, text, color)
                 else:
-                    for (x, y) in self.model.get_grid().neighbours(i, j):
+                    for (x, y) in self.model.get_grid().get_neighbours(i, j):
                         self.left_handler(x, y, False)
                 if self.model.get_squares_revealed() == (
                         self.model.get_width() * self.model.get_height() - self.model.get_bombs()):
