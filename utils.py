@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-def colorpicker(bombs_around: int):
+def colorpicker(bombs_around: int) -> str:
     """ Set correct cell text color by number of bombs around """
     text_color = ""
     if bombs_around == 1:
@@ -39,7 +39,7 @@ def str_to_difficulty_enum(difficulty_str: str) -> Difficulty:
             return difficulty
 
 
-def difficulty_list():
+def difficulty_list() -> list:
     lst = []
     for difficulty in Difficulty:
         lst.append(difficulty.value)

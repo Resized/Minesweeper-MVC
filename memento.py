@@ -11,21 +11,21 @@ class Originator:
         However, it doesn't expose the Originator's state.
         """
 
-        def __init__(self, state) -> None:
+        def __init__(self, state: dict) -> None:
             self._state = state
 
-        def get_saved_state(self):
+        def get_saved_state(self) -> dict:
             return self._state
 
     _state = None
 
-    def set(self, state) -> None:
+    def set(self, state: dict) -> None:
         self._state = state
 
     def save_to_memento(self) -> Memento:
         return self.Memento(self._state)
 
-    def restore_from_memento(self, memento):
+    def restore_from_memento(self, memento: Memento) -> dict:
         self._state = memento.get_saved_state()
         return self._state
 
@@ -44,7 +44,7 @@ class Caretaker:
         memento = self._originator.save_to_memento()
         self._history.append(memento)
 
-    def undo(self):
+    def undo(self) -> dict:
         try:
             memento = self._history.pop()
         except IndexError as e:

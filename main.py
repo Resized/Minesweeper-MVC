@@ -11,7 +11,6 @@ if __name__ == '__main__':
     view = View()
     controller = Controller(model, view)
     view.set_controller(controller)
-    view.set_model(model)
 
     # Creation of the GUI ##########################################################
     window = view.create_main_window()

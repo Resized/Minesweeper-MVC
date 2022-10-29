@@ -3,14 +3,14 @@ from tkinter import ttk, font
 import tkinter.font as tkf
 import time
 import utils
-from model import Model
 
 
 class View:
 
     def __init__(self):
+        self.window = None
+        self.difficulty_cbox = None
         self.controller = None
-        self.model = None
         self.game_frame = None
         self.board = None
         self.flag = None
@@ -33,9 +33,6 @@ class View:
 
     def set_controller(self, controller):
         self.controller = controller
-
-    def set_model(self, model: Model):
-        self.model = model
 
     def create_images(self):
         """
@@ -83,8 +80,8 @@ class View:
             frame.grid(row=i, column=j)
             return cell
 
-        self.board = [[create_square(i, j) for j in range(self.model.get_width())]
-                      for i in range(self.model.get_height())]
+        self.board = [[create_square(i, j) for j in range(self.controller.get_board_width())]
+                      for i in range(self.controller.get_board_height())]
         self.game_frame.pack(padx=10, pady=10, side=tk.BOTTOM)
         return self.board
 
@@ -120,7 +117,7 @@ class View:
             """
             Helper function to update bombs counter periodically
             """
-            bombs_counter_str.set(self.model.get_bombs_left())
+            bombs_counter_str.set(self.controller.get_bombs_left())
             top_frame.after(100, _update_bombs_counter)
 
         _update_bombs_counter()
@@ -141,7 +138,7 @@ class View:
         undo_remaining_str = tk.StringVar()
 
         def _update_undo_button():
-            if self.model.memento_instances == 0 or self.model.undos_remaining == 0:
+            if not self.controller.undo_button_enabled():
                 undo_button['state'] = 'disabled'
             else:
                 undo_button['state'] = 'normal'
@@ -151,7 +148,7 @@ class View:
             """
             Helper function to update number of undos remaining periodically
             """
-            undo_remaining_str.set(self.model.undos_remaining)
+            undo_remaining_str.set(self.controller.get_undos_remaining())
             top_frame.after(100, _update_undo_remaining)
 
         _update_undo_remaining()
@@ -201,13 +198,13 @@ class View:
         self.difficulty_str = tk.StringVar()
 
         # Adding combobox drop down list
-        self.difficulty = ttk.Combobox(top_frame, width=10,
-                                       textvariable=self.difficulty_str, values=utils.difficulty_list(),
-                                       state='readonly')
+        self.difficulty_cbox = ttk.Combobox(top_frame, width=10,
+                                            textvariable=self.difficulty_str, values=utils.difficulty_list(),
+                                            state='readonly')
 
-        self.difficulty.current(0)
-        self.difficulty.grid(row=0, column=3, padx=5)
-        self.difficulty.bind("<<ComboboxSelected>>", _set_difficulty)
+        self.difficulty_cbox.current(0)
+        self.difficulty_cbox.grid(row=0, column=3, padx=5)
+        self.difficulty_cbox.bind("<<ComboboxSelected>>", _set_difficulty)
 
     def create_time_counter(self, top_frame):
         """
@@ -220,7 +217,7 @@ class View:
         time_img = tk.Label(time_frame, image=self.time)
 
         def _update_time_counter():
-            time_counter_str.set(int((time.time() - self.model.get_init_time()) // 1))
+            time_counter_str.set(str(int((time.time() - self.controller.get_init_time()) // 1)))
             top_frame.after(100, _update_time_counter)
 
         _update_time_counter()
@@ -326,8 +323,8 @@ class View:
 
         :param state: State of board to set it to
         """
-        for i in range(self.model.get_height()):
-            for j in range(self.model.get_width()):
+        for i in range(self.controller.get_board_height()):
+            for j in range(self.controller.get_board_width()):
                 if not state['grid_state'][i][j]['is_revealed']:
                     self.set_unclicked(i, j)
                 if state['grid_state'][i][j]['is_flagged']:
@@ -341,4 +338,4 @@ class View:
 
         :param value: Value to to it to
         """
-        self.difficulty.set(value)
+        self.difficulty_cbox.set(value)
