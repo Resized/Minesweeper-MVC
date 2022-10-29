@@ -13,14 +13,8 @@ class Model:
         :param width: Width of grid
         :param bombs: Amount of bombs in grid
         """
-        self.squares_revealed = 0
         self.difficulty = Difficulty.EASY
-        self.height = height
-        self.width = width
-        self.bombs = bombs
-        self.bombs_left = bombs
-        self.set_parameters(self.difficulty, self.height, self.width, self.bombs)
-        self.grid = Grid(self.width, self.height, self.bombs)
+        self.grid = Grid(width, height, bombs)
         self.init_time = time.time()
         self.originator = Originator()
         self.caretaker = Caretaker(self.originator)
@@ -98,11 +92,7 @@ class Model:
             print("Warning : Invalid parameters")
             print("Can't create game with these values")
             return False
-
-        self.height = height
-        self.width = width
-        self.bombs = bombs
-        self.bombs_left = bombs
+        self.grid = Grid(width, height, bombs)
         self.difficulty = difficulty
         return True
 
@@ -112,8 +102,6 @@ class Model:
         self.memento_instances = 0
         self.grid.reset()
         self.grid.add_bombs()
-        self.set_squares_revealed(0)
-        self.set_bombs_left(self.bombs)
         self.undos_remaining = DEFAULT_UNDO_TRIES
         self.set_init_time(time.time())
 
@@ -127,7 +115,7 @@ class Model:
         return self.grid.height
 
     def get_bombs(self) -> int:
-        return self.bombs
+        return self.grid.bombs
 
     def get_bombs_left(self) -> int:
         return self.grid.get_bombs_left()
@@ -139,37 +127,34 @@ class Model:
         return self.grid.get_squares_revealed()
 
     def set_squares_revealed(self, num_squares_revealed: int) -> None:
-        self.squares_revealed = num_squares_revealed
+        self.grid.squares_revealed = num_squares_revealed
 
     def set_bombs_left(self, num_bombs_left: int) -> bool:
         if num_bombs_left < 0:
             return False
-        self.bombs_left = num_bombs_left
+        self.grid.bombs_left = num_bombs_left
         return True
 
     def set_bombs(self, num_bombs: int) -> bool:
         if num_bombs < 0:
             return False
-        self.bombs = num_bombs
+        self.grid.bombs = num_bombs
         return True
 
     def set_height(self, height_num: int) -> bool:
         if height_num < 1:
             return False
-        self.height = height_num
+        self.grid.height = height_num
         return True
 
     def set_width(self, width_num: int) -> bool:
         if width_num < 1:
             return False
-        self.width = width_num
+        self.grid.width = width_num
         return True
 
     def set_init_time(self, set_time: float) -> None:
         self.init_time = set_time
-
-    def update_grid(self) -> None:
-        self.grid = Grid(self.width, self.height, self.bombs)
 
     def is_square_revealed(self, i: int, j: int) -> bool:
         return self.grid.board[i][j].is_revealed

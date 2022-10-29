@@ -1,5 +1,4 @@
 import random
-from dataclasses import dataclass
 from itertools import product
 from typing import Any
 
@@ -11,10 +10,10 @@ class Grid:
 
     def __init__(self, width: int, height: int, bombs: int) -> None:
         self.squares_revealed = 0
-        self.bombs_left = 0
         self.height = height
         self.width = width
         self.bombs = bombs
+        self.bombs_left = bombs
         # Instantiate board with number of cells by given height and width
         self.board = [[Cell(i, j) for j in range(self.width)]
                       for i in range(self.height)]
@@ -25,6 +24,8 @@ class Grid:
         for line in self.board:
             for cell in line:
                 cell.reset()
+        self.squares_revealed = 0
+        self.bombs_left = self.bombs
 
     def add_bombs(self) -> None:
         """ Fill board squares with bombs """

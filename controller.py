@@ -182,5 +182,4 @@ class Controller:
                 if self.model.set_parameters(utils.Difficulty.CUSTOM, height, width, bombs):
                     break
         self.model.set_parameters(difficulty)
-        self.model.update_grid()
         self.model.new_game()
