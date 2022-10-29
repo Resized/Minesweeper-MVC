@@ -1,13 +1,15 @@
 import tkinter as tk
-from tkinter import ttk, font
+from tkinter import ttk, font, Button
 import tkinter.font as tkf
 import time
+from typing import List
+
 import utils
 
 
 class View:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.window = None
         self.difficulty_cbox = None
         self.controller = None
@@ -18,7 +20,7 @@ class View:
         self.time = None
         self.difficulty_str = None
 
-    def create_main_window(self):
+    def create_main_window(self) -> tk.Tk:
         """
         Creates main unresizable window
         """
@@ -31,10 +33,10 @@ class View:
         self.create_top_frame(self.window)
         return self.window
 
-    def set_controller(self, controller):
+    def set_controller(self, controller) -> None:
         self.controller = controller
 
-    def create_images(self):
+    def create_images(self) -> None:
         """
         Load game related images
         """
@@ -42,7 +44,7 @@ class View:
         self.mine = tk.PhotoImage(file="images/mine.gif")
         self.time = tk.PhotoImage(file="images/time.gif")
 
-    def create_board(self, window: tk.Tk):
+    def create_board(self, window: tk.Tk) -> list[list[Button]]:
         """
         Create main game frame
 
@@ -87,7 +89,7 @@ class View:
 
     # Top frame ####################################################################
 
-    def create_top_frame(self, window):
+    def create_top_frame(self, window: tk.Tk) -> None:
         """
         Draw the top menu frame
 
@@ -103,7 +105,7 @@ class View:
         self.create_difficulty_cbox(top_frame)
         self.create_time_counter(top_frame)
 
-    def create_bombs_counter(self, top_frame):
+    def create_bombs_counter(self, top_frame: tk.Frame) -> None:
         """
         Draw a frame with bombs counter and a bomb image
 
@@ -113,7 +115,7 @@ class View:
         bomb_img = tk.Label(bomb_frame, image=self.mine)
         bombs_counter_str = tk.StringVar()
 
-        def _update_bombs_counter():
+        def _update_bombs_counter() -> None:
             """
             Helper function to update bombs counter periodically
             """
@@ -129,7 +131,7 @@ class View:
         bomb_img.grid(row=0, column=1, padx=2, sticky=tk.E)
         bomb_frame.grid(row=0, column=0, padx=5, sticky=tk.W)
 
-    def create_undo_frame(self, top_frame):
+    def create_undo_frame(self, top_frame: tk.Frame) -> None:
         """
         Draw a frame with undo button and remaining undo counter
 
@@ -137,14 +139,14 @@ class View:
         """
         undo_remaining_str = tk.StringVar()
 
-        def _update_undo_button():
+        def _update_undo_button() -> None:
             if not self.controller.undo_button_enabled():
                 undo_button['state'] = 'disabled'
             else:
                 undo_button['state'] = 'normal'
             undo_button.after(100, _update_undo_button)
 
-        def _update_undo_remaining():
+        def _update_undo_remaining() -> None:
             """
             Helper function to update number of undos remaining periodically
             """
@@ -153,7 +155,7 @@ class View:
 
         _update_undo_remaining()
 
-        def _undo():
+        def _undo() -> None:
             self.controller.undo_state()
 
         memento_frame = tk.Frame(top_frame, borderwidth=2, height=40, relief=tk.GROOVE, padx=2)
@@ -166,30 +168,30 @@ class View:
         undo_remaining_label.grid(row=0, column=1, padx=0)
         memento_frame.grid(row=0, column=1, padx=5)
 
-    def create_new_game_button(self, top_frame):
+    def create_new_game_button(self, top_frame: tk.Frame) -> None:
         """
         Draw a new game button
 
         :param top_frame: Frame to draw upon
         """
 
-        def _start_new_game():
+        def _start_new_game() -> None:
             self.controller.start_new_game()
 
         newgame_button = tk.Button(top_frame, bd=1, width=10, text="New game",
                                    command=_start_new_game)
         newgame_button.grid(row=0, column=2, padx=0)
 
-    def create_difficulty_cbox(self, top_frame):
+    def create_difficulty_cbox(self, top_frame: tk.Frame) -> None:
         """
         Draw a difficulty combo box
 
         :param top_frame: Frame to draw upon
         """
 
-        def _set_difficulty(selected_difficulty):
+        def _set_difficulty(event) -> None:
             self.game_frame.destroy()
-            self.controller.set_difficulty(utils.str_to_difficulty_enum(selected_difficulty.widget.get()))
+            self.controller.set_difficulty(utils.str_to_difficulty_enum(event.widget.get()))
             self.board = self.create_board(self.window)
             self.controller.start_new_game()
             top_frame.focus_set()
@@ -206,7 +208,7 @@ class View:
         self.difficulty_cbox.grid(row=0, column=3, padx=5)
         self.difficulty_cbox.bind("<<ComboboxSelected>>", _set_difficulty)
 
-    def create_time_counter(self, top_frame):
+    def create_time_counter(self, top_frame: tk.Frame) -> None:
         """
         Draw a frame with time counter and an image
 
@@ -216,7 +218,7 @@ class View:
         time_counter_str = tk.StringVar()
         time_img = tk.Label(time_frame, image=self.time)
 
-        def _update_time_counter():
+        def _update_time_counter() -> None:
             time_counter_str.set(str(int((time.time() - self.controller.get_init_time()) // 1)))
             top_frame.after(100, _update_time_counter)
 
@@ -229,7 +231,7 @@ class View:
         time_img.grid(row=0, column=0, padx=2, sticky=tk.E)
         time_frame.grid(row=0, column=4, padx=5, sticky=tk.E)
 
-    def set_bomb(self, i: int, j: int):
+    def set_bomb(self, i: int, j: int) -> None:
         """
         Set given cell to bomb
 
@@ -240,7 +242,7 @@ class View:
         self.board[i][j]["image"] = self.mine
         self.board[i][j]["state"] = "normal"
 
-    def is_empty_image(self, i: int, j: int):
+    def is_empty_image(self, i: int, j: int) -> bool:
         """
         Checks whether cell has no image
 
@@ -250,7 +252,7 @@ class View:
         """
         return self.board[i][j]["image"] == ""
 
-    def set_clicked(self, i: int, j: int):
+    def set_clicked(self, i: int, j: int) -> None:
         """
         Set cell's button state to clicked
 
@@ -261,7 +263,7 @@ class View:
         self.board[i][j]["relief"] = tk.SUNKEN
         self.board[i][j]["bg"] = "gray80"
 
-    def set_unclicked(self, i: int, j: int):
+    def set_unclicked(self, i: int, j: int) -> None:
         """
         Set cell's button state to unclicked
 
@@ -274,7 +276,7 @@ class View:
         self.board[i][j]["relief"] = tk.RAISED
         self.board[i][j]["bg"] = "SystemButtonFace"
 
-    def set_bomb_text(self, i: int, j: int, text: str, color: str):
+    def set_bomb_text(self, i: int, j: int, text: str, color: str) -> None:
         """
         Set the cells text and color
 
@@ -286,7 +288,7 @@ class View:
         self.board[i][j]["text"] = text
         self.board[i][j]["disabledforeground"] = color
 
-    def set_flag(self, i: int, j: int):
+    def set_flag(self, i: int, j: int) -> None:
         """
         Set cell as flagged
 
@@ -296,7 +298,7 @@ class View:
         self.board[i][j]["image"] = self.flag
         self.board[i][j]["state"] = "normal"
 
-    def set_disabled(self, i: int, j: int):
+    def set_disabled(self, i: int, j: int) -> None:
         """
         Set cell as disabled
 
@@ -306,7 +308,7 @@ class View:
         self.board[i][j]["state"] = "disabled"
         self.board[i][j]["image"] = ""
 
-    def reset_board(self, height, width):
+    def reset_board(self, height: int, width: int) -> None:
         """
         Resets entire board
 
@@ -317,7 +319,7 @@ class View:
             for y in range(width):
                 self.set_unclicked(x, y)
 
-    def board_to_state(self, state):
+    def board_to_state(self, state: dict[str, int | list]) -> None:
         """
         Sets the board to given state
 

@@ -77,8 +77,8 @@ class Controller:
         Called when lose game logic occurred
         """
         title = "You lost..."
-        if self.model.undos_remaining > 0:
-            msg = f"You have {self.model.undos_remaining} undos remaining.\nDo you want to undo last move?"
+        if self.model.get_undos_remaining() > 0:
+            msg = f"You have {self.model.get_undos_remaining()} undos remaining.\nDo you want to undo last move?"
             strings = ('Undo', 'New Game', 'Quit')
             question = tkdiag.Dialog(title=title, text=msg, bitmap="question", strings=strings, default=0)
             ans = strings[question.num]
@@ -89,7 +89,7 @@ class Controller:
             elif ans == strings[2]:
                 sys.exit()
         else:
-            msg = f"You have {self.model.undos_remaining} undos remaining.\nDo you want to play a new game?"
+            msg = f"You have {self.model.get_undos_remaining()} undos remaining.\nDo you want to play a new game?"
             strings = ('New Game', 'Quit')
             question = tkdiag.Dialog(title=title, text=msg, bitmap="question", strings=strings, default=0)
             ans = strings[question.num]
@@ -110,31 +110,25 @@ class Controller:
         Helper function that restores state of model and board to previous one
         """
         if self.model.undo_state():
-            self.view.board_to_state(self.model.state)
+            self.view.board_to_state(self.model.get_state())
 
     def undo_button_enabled(self) -> bool:
         """
         Helper function that checks if undo button should be enabled
         """
-        return self.model.undos_remaining > 0 or self.model.memento_instances == 0
+        return self.model.get_undos_remaining() > 0 or self.model.get_memento_instances() == 0
 
     def get_undos_remaining(self) -> int:
         """
         Helper function that returns the number of undos remaining
         """
-        return self.model.undos_remaining
+        return self.model.get_undos_remaining()
 
     def get_bombs_left(self) -> int:
         """
         Helper function that returns the number of bombs left
         """
         return self.model.get_bombs_left()
-
-    def update_undos_remaining(self) -> None:
-        """
-        Helper function that updates the number of undos remaining
-        """
-        self.view.undos_remaining = self.model.undos_remaining
 
     def get_board_height(self) -> int:
         """

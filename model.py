@@ -176,3 +176,12 @@ class Model:
 
     def is_square_revealed(self, i: int, j: int) -> bool:
         return self.grid.board[i][j].is_revealed
+
+    def get_state(self) -> dict[str, int | list]:
+        return self.state
+
+    def get_undos_remaining(self) -> int:
+        return self.undos_remaining
+
+    def get_memento_instances(self) -> int:
+        return self.memento_instances
