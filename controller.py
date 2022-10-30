@@ -191,5 +191,5 @@ class Controller:
         """
         for i in range(self.model.get_height()):
             for j in range(self.model.get_width()):
-                if self.model.grid.board[i][j].is_bomb and not self.model.grid.board[i][j].is_flagged:
+                if self.model.grid.board[i][j].is_bomb and not self.model.grid.board[i][j].is_flagged and self.model.undos_remaining == 0:
                     self.view.set_bomb(i, j)
