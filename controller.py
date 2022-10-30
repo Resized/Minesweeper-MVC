@@ -76,6 +76,7 @@ class Controller:
         """
         Called when lose game logic occurred
         """
+        self.reveal_all_bombs()
         title = "You lost..."
         if self.model.get_undos_remaining() > 0:
             msg = f"You have {self.model.get_undos_remaining()} undos remaining.\nDo you want to undo last move?"
@@ -183,3 +184,12 @@ class Controller:
                     break
         self.model.set_parameters(difficulty)
         self.model.new_game()
+
+    def reveal_all_bombs(self):
+        """
+        Helper function that reveals all bombs on the board
+        """
+        for i in range(self.model.get_height()):
+            for j in range(self.model.get_width()):
+                if self.model.grid.board[i][j].is_bomb and not self.model.grid.board[i][j].is_flagged:
+                    self.view.set_bomb(i, j)
